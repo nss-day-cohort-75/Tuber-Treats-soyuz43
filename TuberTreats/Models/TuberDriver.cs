@@ -1,7 +1,10 @@
-public class TuberDriver
+namespace TuberTreats.Models
 {
-    public int Id { get; set; }
-    public string Name { get; set; }
+    public class TuberDriver
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
 
-    public List<TuberOrder> TuberDeliveries { get; set; } = new();
+        public List<TuberOrder> TuberDeliveries { get; set; } = new();
+    }
 }

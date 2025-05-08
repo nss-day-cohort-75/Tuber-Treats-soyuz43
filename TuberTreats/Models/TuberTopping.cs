@@ -1,10 +1,13 @@
-public class TuberTopping
+namespace TuberTreats.Models
 {
-    public int Id { get; set; }
+    public class TuberTopping
+    {
+        public int Id { get; set; }
 
-    public int TuberOrderId { get; set; }
-    public TuberOrder TuberOrder { get; set; }
+        public int TuberOrderId { get; set; }
+        public TuberOrder TuberOrder { get; set; }
 
-    public int ToppingId { get; set; }
-    public Topping Topping { get; set; }
+        public int ToppingId { get; set; }
+        public Topping Topping { get; set; }
+    }
 }
