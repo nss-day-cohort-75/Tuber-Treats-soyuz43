@@ -14,6 +14,42 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<FakeDataStore>();
 var app = builder.Build();
 
+
+// 🧪 Seed FakeDataStore with test data
+var dataStore = app.Services.GetRequiredService<FakeDataStore>();
+
+dataStore.Customers.AddRange(new List<Customer>
+{
+    new() { Id = 1, Name = "Alice", Address = "123 Spud Ln" },
+    new() { Id = 2, Name = "Bob", Address = "456 Tater Ave" }
+});
+
+dataStore.TuberDrivers.AddRange(new List<TuberDriver>
+{
+    new() { Id = 1, Name = "Driver Dan" },
+    new() { Id = 2, Name = "Driver Dana" }
+});
+
+dataStore.Toppings.AddRange(new List<Topping>
+{
+    new() { Id = 1, Name = "Chives" },
+    new() { Id = 2, Name = "Cheddar" },
+    new() { Id = 3, Name = "Sour Cream" }
+});
+
+dataStore.TuberOrders.AddRange(new List<TuberOrder>
+{
+    new()
+    {
+        Id = 1,
+        OrderPlacedOnDate = DateTime.Now.AddHours(-2),
+        CustomerId = 1,
+        TuberDriverId = null,
+        Toppings = new List<Topping> { dataStore.Toppings[0], dataStore.Toppings[1] }
+    }
+});
+
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
