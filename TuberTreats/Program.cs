@@ -1,3 +1,6 @@
+// TuberTreats\Program.cs
+using TuberTreats.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -7,6 +10,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// ! ✅ this registers the in-memory data store
+builder.Services.AddSingleton<FakeDataStore>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
