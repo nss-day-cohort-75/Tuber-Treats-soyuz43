@@ -63,6 +63,13 @@ app.UseAuthorization();
 
 //add endpoints here
 
+app.MapGet("/customers", () => dataStore.Customers);
+app.MapGet("/toppings", () => dataStore.Toppings);
+app.MapGet("/drivers", () => dataStore.TuberDrivers);
+app.MapGet("/orders", () => dataStore.TuberOrders);
+app.MapGet("/tubertoppings", () => dataStore.TuberToppings);
 app.Run();
+
+
 //don't touch or move this!
 public partial class Program { }
