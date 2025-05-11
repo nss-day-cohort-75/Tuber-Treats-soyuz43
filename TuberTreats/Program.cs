@@ -55,6 +55,7 @@ app.UseAuthorization();
 // Customers
 app.MapGet("/customers", () =>
 {
+    // ! Map all Customer domain entities into lightweight DTOs for API response
     IEnumerable<CustomerDto> dtos = dataStore.Customers.Select(c => new CustomerDto
     {
         Id = c.Id,
@@ -69,6 +70,7 @@ app.MapGet("/customers/{id:int}", (int id) =>
     Customer? customer = dataStore.Customers.FirstOrDefault(c => c.Id == id);
     if (customer is null) return Results.NotFound();
 
+    // ! Convert all orders for the specified customer into DTOs to include in the customer detail response
     List<TuberOrderDto> orders = dataStore.TuberOrders
         .Where(o => o.CustomerId == id)
         .Select(order => new TuberOrderDto
@@ -151,6 +153,7 @@ app.MapGet("/toppings/{id:int}", (int id) =>
 // Drivers
 app.MapGet("/tuberdrivers", () =>
 {
+    // ! Project all TuberDriver domain models into DTOs to decouple internal data from API response
     IEnumerable<TuberDriverDto> dtos = dataStore.TuberDrivers.Select(d => new TuberDriverDto
     {
         Id = d.Id,
