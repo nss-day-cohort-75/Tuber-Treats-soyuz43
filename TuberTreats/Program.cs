@@ -1,4 +1,3 @@
-// TuberTreats\Program.cs
 using TuberTreats.Models;
 using TuberTreats.Models.DTOs;
 
@@ -10,7 +9,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<FakeDataStore>();
 
 var app = builder.Build();
-var dataStore = app.Services.GetRequiredService<FakeDataStore>();
+FakeDataStore dataStore = app.Services.GetRequiredService<FakeDataStore>();
 
 // Seed test data
 dataStore.Customers.AddRange(new List<Customer>
@@ -56,7 +55,7 @@ app.UseAuthorization();
 // Customers
 app.MapGet("/customers", () =>
 {
-    var dtos = dataStore.Customers.Select(c => new CustomerDto
+    IEnumerable<CustomerDto> dtos = dataStore.Customers.Select(c => new CustomerDto
     {
         Id = c.Id,
         Name = c.Name,
@@ -67,10 +66,10 @@ app.MapGet("/customers", () =>
 
 app.MapGet("/customers/{id:int}", (int id) =>
 {
-    var customer = dataStore.Customers.FirstOrDefault(c => c.Id == id);
+    Customer? customer = dataStore.Customers.FirstOrDefault(c => c.Id == id);
     if (customer is null) return Results.NotFound();
 
-    var orders = dataStore.TuberOrders
+    List<TuberOrderDto> orders = dataStore.TuberOrders
         .Where(o => o.CustomerId == id)
         .Select(order => new TuberOrderDto
         {
@@ -83,7 +82,7 @@ app.MapGet("/customers/{id:int}", (int id) =>
             Toppings = order.Toppings.Select(t => t.Name).ToList()
         }).ToList();
 
-    var dto = new CustomerWithOrdersDto
+    CustomerWithOrdersDto dto = new()
     {
         Id = customer.Id,
         Name = customer.Name,
@@ -96,7 +95,7 @@ app.MapGet("/customers/{id:int}", (int id) =>
 
 app.MapPost("/customers", (CreateCustomerDto dto) =>
 {
-    var newCustomer = new Customer
+    Customer newCustomer = new()
     {
         Id = dataStore.Customers.Max(c => c.Id) + 1,
         Name = dto.Name,
@@ -105,7 +104,7 @@ app.MapPost("/customers", (CreateCustomerDto dto) =>
 
     dataStore.Customers.Add(newCustomer);
 
-    var result = new CustomerDto
+    CustomerDto result = new()
     {
         Id = newCustomer.Id,
         Name = newCustomer.Name,
@@ -117,7 +116,7 @@ app.MapPost("/customers", (CreateCustomerDto dto) =>
 
 app.MapDelete("/customers/{id:int}", (int id) =>
 {
-    var customer = dataStore.Customers.FirstOrDefault(c => c.Id == id);
+    Customer? customer = dataStore.Customers.FirstOrDefault(c => c.Id == id);
     if (customer is null) return Results.NotFound();
 
     dataStore.Customers.Remove(customer);
@@ -127,7 +126,7 @@ app.MapDelete("/customers/{id:int}", (int id) =>
 // Toppings
 app.MapGet("/toppings", () =>
 {
-    var dtos = dataStore.Toppings.Select(t => new ToppingDto
+    IEnumerable<ToppingDto> dtos = dataStore.Toppings.Select(t => new ToppingDto
     {
         Id = t.Id,
         Name = t.Name
@@ -137,10 +136,10 @@ app.MapGet("/toppings", () =>
 
 app.MapGet("/toppings/{id:int}", (int id) =>
 {
-    var topping = dataStore.Toppings.FirstOrDefault(t => t.Id == id);
+    Topping? topping = dataStore.Toppings.FirstOrDefault(t => t.Id == id);
     if (topping is null) return Results.NotFound();
 
-    var dto = new ToppingDto
+    ToppingDto dto = new()
     {
         Id = topping.Id,
         Name = topping.Name
@@ -152,7 +151,7 @@ app.MapGet("/toppings/{id:int}", (int id) =>
 // Drivers
 app.MapGet("/tuberdrivers", () =>
 {
-    var dtos = dataStore.TuberDrivers.Select(d => new TuberDriverDto
+    IEnumerable<TuberDriverDto> dtos = dataStore.TuberDrivers.Select(d => new TuberDriverDto
     {
         Id = d.Id,
         Name = d.Name
@@ -162,10 +161,10 @@ app.MapGet("/tuberdrivers", () =>
 
 app.MapGet("/tuberdrivers/{id:int}", (int id) =>
 {
-    var driver = dataStore.TuberDrivers.FirstOrDefault(d => d.Id == id);
+    TuberDriver? driver = dataStore.TuberDrivers.FirstOrDefault(d => d.Id == id);
     if (driver is null) return Results.NotFound();
 
-    var deliveries = dataStore.TuberOrders
+    List<TuberOrderDto> deliveries = dataStore.TuberOrders
         .Where(o => o.TuberDriverId == id)
         .Select(order => new TuberOrderDto
         {
@@ -176,7 +175,7 @@ app.MapGet("/tuberdrivers/{id:int}", (int id) =>
             Toppings = order.Toppings.Select(t => t.Name).ToList()
         }).ToList();
 
-    var dto = new TuberDriverWithDeliveriesDto
+    TuberDriverWithDeliveriesDto dto = new()
     {
         Id = driver.Id,
         Name = driver.Name,
@@ -186,10 +185,10 @@ app.MapGet("/tuberdrivers/{id:int}", (int id) =>
     return Results.Ok(dto);
 });
 
-// TuberOrders
+// Orders
 app.MapGet("/tuberorders", () =>
 {
-    var dtos = dataStore.TuberOrders.Select(order => new TuberOrderDto
+    IEnumerable<TuberOrderDto> dtos = dataStore.TuberOrders.Select(order => new TuberOrderDto
     {
         Id = order.Id,
         OrderPlacedOnDate = order.OrderPlacedOnDate,
@@ -205,10 +204,10 @@ app.MapGet("/tuberorders", () =>
 
 app.MapGet("/tuberorders/{id:int}", (int id) =>
 {
-    var order = dataStore.TuberOrders.FirstOrDefault(o => o.Id == id);
+    TuberOrder? order = dataStore.TuberOrders.FirstOrDefault(o => o.Id == id);
     if (order is null) return Results.NotFound();
 
-    var dto = new TuberOrderDto
+    TuberOrderDto dto = new()
     {
         Id = order.Id,
         OrderPlacedOnDate = order.OrderPlacedOnDate,
@@ -224,12 +223,12 @@ app.MapGet("/tuberorders/{id:int}", (int id) =>
 
 app.MapPost("/tuberorders", (CreateTuberOrderDto dto) =>
 {
-    var toppings = dto.ToppingIds
+    List<Topping?> toppings = dto.ToppingIds
         .Select(id => dataStore.Toppings.FirstOrDefault(t => t.Id == id))
         .Where(t => t is not null)
         .ToList();
 
-    var newOrder = new TuberOrder
+    TuberOrder newOrder = new()
     {
         Id = dataStore.TuberOrders.Max(o => o.Id) + 1,
         OrderPlacedOnDate = DateTime.Now,
@@ -239,7 +238,7 @@ app.MapPost("/tuberorders", (CreateTuberOrderDto dto) =>
 
     dataStore.TuberOrders.Add(newOrder);
 
-    var result = new TuberOrderDto
+    TuberOrderDto result = new()
     {
         Id = newOrder.Id,
         OrderPlacedOnDate = newOrder.OrderPlacedOnDate,
@@ -254,7 +253,7 @@ app.MapPost("/tuberorders", (CreateTuberOrderDto dto) =>
 // TuberToppings
 app.MapGet("/tubertoppings", () =>
 {
-    var dtos = dataStore.TuberToppings.Select(tt => new TuberToppingDto
+    IEnumerable<TuberToppingDto> dtos = dataStore.TuberToppings.Select(tt => new TuberToppingDto
     {
         Id = tt.Id,
         TuberOrderId = tt.TuberOrderId,
@@ -266,14 +265,14 @@ app.MapGet("/tubertoppings", () =>
 
 app.MapPost("/tubertoppings", (int orderId, int toppingId) =>
 {
-    var order = dataStore.TuberOrders.FirstOrDefault(o => o.Id == orderId);
-    var topping = dataStore.Toppings.FirstOrDefault(t => t.Id == toppingId);
+    TuberOrder? order = dataStore.TuberOrders.FirstOrDefault(o => o.Id == orderId);
+    Topping? topping = dataStore.Toppings.FirstOrDefault(t => t.Id == toppingId);
     if (order is null || topping is null)
         return Results.BadRequest("Invalid order or topping ID.");
 
     order.Toppings.Add(topping);
 
-    var newTuberTopping = new TuberTopping
+    TuberTopping newTuberTopping = new()
     {
         Id = dataStore.TuberToppings.Count + 1,
         TuberOrderId = orderId,
@@ -282,7 +281,7 @@ app.MapPost("/tubertoppings", (int orderId, int toppingId) =>
 
     dataStore.TuberToppings.Add(newTuberTopping);
 
-    var dto = new TuberToppingDto
+    TuberToppingDto dto = new()
     {
         Id = newTuberTopping.Id,
         TuberOrderId = newTuberTopping.TuberOrderId,
