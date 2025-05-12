@@ -52,16 +52,16 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthorization();
 
-// Customers
+// ! Customers
 app.MapGet("/customers", () =>
 {
-    // ! Map all Customer domain entities into lightweight DTOs for API response
-    IEnumerable<CustomerDto> dtos = dataStore.Customers.Select(c => new CustomerDto
+    // * Map all Customer domain entities into lightweight DTOs for API response
+    List<CustomerDto> dtos = dataStore.Customers.Select(c => new CustomerDto
     {
         Id = c.Id,
         Name = c.Name,
         Address = c.Address
-    });
+    }).ToList();
     return Results.Ok(dtos);
 });
 
@@ -70,7 +70,7 @@ app.MapGet("/customers/{id:int}", (int id) =>
     Customer? customer = dataStore.Customers.FirstOrDefault(c => c.Id == id);
     if (customer is null) return Results.NotFound();
 
-    // ! Convert all orders for the specified customer into DTOs to include in the customer detail response
+    // !* Convert all orders for the specified customer into DTOs to include in the customer detail response
     List<TuberOrderDto> orders = dataStore.TuberOrders
         .Where(o => o.CustomerId == id)
         .Select(order => new TuberOrderDto
@@ -84,7 +84,7 @@ app.MapGet("/customers/{id:int}", (int id) =>
             Toppings = order.Toppings.Select(t => t.Name).ToList()
         }).ToList();
 
-    CustomerWithOrdersDto dto = new()
+    CustomerWithOrdersDto dto = new CustomerWithOrdersDto()
     {
         Id = customer.Id,
         Name = customer.Name,
@@ -106,7 +106,7 @@ app.MapPost("/customers", (CreateCustomerDto dto) =>
 
     dataStore.Customers.Add(newCustomer);
 
-    CustomerDto result = new()
+    CustomerDto result = new CustomerDto()
     {
         Id = newCustomer.Id,
         Name = newCustomer.Name,
@@ -124,8 +124,9 @@ app.MapDelete("/customers/{id:int}", (int id) =>
     dataStore.Customers.Remove(customer);
     return Results.NoContent();
 });
+// ! END
 
-// Toppings
+// ! Toppings
 app.MapGet("/toppings", () =>
 {
     IEnumerable<ToppingDto> dtos = dataStore.Toppings.Select(t => new ToppingDto
@@ -141,7 +142,7 @@ app.MapGet("/toppings/{id:int}", (int id) =>
     Topping? topping = dataStore.Toppings.FirstOrDefault(t => t.Id == id);
     if (topping is null) return Results.NotFound();
 
-    ToppingDto dto = new()
+    ToppingDto dto = new ToppingDto()
     {
         Id = topping.Id,
         Name = topping.Name
@@ -149,16 +150,17 @@ app.MapGet("/toppings/{id:int}", (int id) =>
 
     return Results.Ok(dto);
 });
+// ! END
 
-// Drivers
+// ! Drivers
 app.MapGet("/tuberdrivers", () =>
 {
-    // ! Project all TuberDriver domain models into DTOs to decouple internal data from API response
-    IEnumerable<TuberDriverDto> dtos = dataStore.TuberDrivers.Select(d => new TuberDriverDto
+    // * Project all TuberDriver domain models into DTOs to decouple internal data from API response
+    List<TuberDriverDto> dtos = dataStore.TuberDrivers.Select(d => new TuberDriverDto
     {
         Id = d.Id,
         Name = d.Name
-    });
+    }).ToList();
     return Results.Ok(dtos);
 });
 
@@ -178,7 +180,7 @@ app.MapGet("/tuberdrivers/{id:int}", (int id) =>
             Toppings = order.Toppings.Select(t => t.Name).ToList()
         }).ToList();
 
-    TuberDriverWithDeliveriesDto dto = new()
+    TuberDriverWithDeliveriesDto dto = new TuberDriverWithDeliveriesDto()
     {
         Id = driver.Id,
         Name = driver.Name,
@@ -188,7 +190,7 @@ app.MapGet("/tuberdrivers/{id:int}", (int id) =>
     return Results.Ok(dto);
 });
 
-// Orders
+// ! Orders
 app.MapGet("/tuberorders", () =>
 {
     IEnumerable<TuberOrderDto> dtos = dataStore.TuberOrders.Select(order => new TuberOrderDto
@@ -252,8 +254,9 @@ app.MapPost("/tuberorders", (CreateTuberOrderDto dto) =>
 
     return Results.Created($"/tuberorders/{newOrder.Id}", result);
 });
+// ! END
 
-// TuberToppings
+// ! TuberToppings
 app.MapGet("/tubertoppings", () =>
 {
     IEnumerable<TuberToppingDto> dtos = dataStore.TuberToppings.Select(tt => new TuberToppingDto
@@ -293,7 +296,7 @@ app.MapPost("/tubertoppings", (int orderId, int toppingId) =>
 
     return Results.Ok(dto);
 });
-
+// ! END
 app.Run();
 
 public partial class Program { }
