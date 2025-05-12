@@ -103,10 +103,3 @@ Seeded on startup:
 * Swagger provides a friendly UI to interact with all endpoints.
 
 ---
-
-## 🧹 Future Ideas
-
-* Add validation and error messages
-* Introduce DTOs or AutoMapper
-* Use EF Core and SQLite for persistent storage
-* Unit tests with xUnit
